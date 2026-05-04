@@ -1,0 +1,43 @@
+prometheus:
+  prometheusSpec:
+    retention: 3d
+
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: yc-network-hdd
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 20Gi
+
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 300m
+      limits:
+        memory: 2Gi
+        cpu: 1
+
+    serviceMonitorSelectorNilUsesHelmValues: false
+
+  additionalServiceMonitors:
+    - name: fraud-app-monitor
+      selector:
+        matchLabels:
+          app: fraud-app
+      namespaceSelector:
+        any: true
+      endpoints:
+        - port: http
+          path: /metrics
+          interval: 15s
+
+grafana:
+  persistence:
+    enabled: true
+    storageClassName: yc-network-hdd
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi

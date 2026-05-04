@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fraud-api-service
+  labels:
+    app: fraud-app # Добавили метку, чтобы ServiceMonitor нашел этот сервис
+  annotations:
+    yandex.cloud/load-balancer-type: internal
+    yandex.cloud/subnet-id: "{{SUBNET_ID}}"
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http # Обязательно даем имя порту!
+      port: 80
+      targetPort: 8000
+  selector:
+    app: fraud-api

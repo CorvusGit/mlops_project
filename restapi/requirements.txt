@@ -1,0 +1,25 @@
+# Веб-сервер и API
+fastapi
+uvicorn
+gunicorn
+pydantic
+loguru
+
+# Работа с данными и совместимость (помним про ошибку iteritems)
+pandas>=2.0.3
+
+numpy<1.25.0
+
+# Инференс модели (MLFlow + Spark)
+mlflow==2.17.2
+pyspark==3.3.2
+# При необходимости добавьте библиотеку для работы с S3, если модель там
+boto3
+
+# Шина данных (Kafka)
+aiokafka
+
+# Работа с датами (использовалась в коде)
+python-dateutil
+
+prometheus-client

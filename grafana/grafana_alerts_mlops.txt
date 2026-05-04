@@ -1,0 +1,137 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: FraudGroup
+      folder: FraudServices
+      interval: 30s
+      rules:
+        - uid: efkv1a18i64u8e
+          title: FraudNumberPodAlerts
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 3600
+                to: 0
+              datasourceUid: prometheus
+              model:
+                datasource:
+                    type: prometheus
+                    uid: prometheus
+                editorMode: code
+                expr: count(kube_pod_status_phase{phase="Running", pod=~"fraud-api-deployment.*"})
+                instant: true
+                interval: ""
+                intervalMs: 30000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 4
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: adfhlw2
+          panelId: 3
+          noDataState: NoData
+          execErrState: Error
+          for: 1m
+          annotations:
+            __dashboardUid__: adfhlw2
+            __panelId__: "3"
+            summary: Alarm ! Увеличено количество подов  !
+          isPaused: false
+          notification_settings:
+            receiver: my
+        - uid: bfkv4tuva8kjke
+          title: Fraud_CPU_80_alert
+          condition: B
+          data:
+            - refId: sum by (pod) (rate(container_cpu_usage_seconds_total{container="fraud-api-container", namespace="default"}[5m]))
+              relativeTimeRange:
+                from: 3600
+                to: 0
+              datasourceUid: prometheus
+              model:
+                datasource:
+                    type: prometheus
+                    uid: prometheus
+                editorMode: code
+                exemplar: false
+                expr: |-
+                    sum by (pod) (
+                      rate(container_cpu_usage_seconds_total{container="fraud-api-container", namespace="default"}[5m])
+                    )
+                    /
+                    sum by (pod) (
+                      kube_pod_container_resource_limits{container="fraud-api-container", resource="cpu", namespace="default"}
+                    )
+                    * 100
+                instant: true
+                interval: ""
+                intervalMs: 30000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: sum by (pod) (rate(container_cpu_usage_seconds_total{container="fraud-api-container", namespace="default"}[5m]))
+            - refId: B
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 20
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: sum by (pod) (rate(container_cpu_usage_seconds_total{container="fraud-api-container", namespace="default"}[5m]))
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: B
+                type: threshold
+          dashboardUid: adfhlw2
+          panelId: 1
+          noDataState: NoData
+          execErrState: Error
+          keepFiringFor: 30s
+          annotations:
+            __dashboardUid__: adfhlw2
+            __panelId__: "1"
+            summary: Alarm ! Превышение загрузки процессора на одноv из pod !
+          isPaused: false
+          notification_settings:
+            receiver: my
+
