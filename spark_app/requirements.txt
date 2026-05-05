@@ -1,0 +1,7 @@
+pydantic
+pandas>=2.0.3
+numpy<1.25.0
+pyspark==3.3.2
+boto3
+python-dateutil
+prometheus-client

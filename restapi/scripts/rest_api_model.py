@@ -82,22 +82,22 @@ async def startup_event():
     
     context = ssl.create_default_context()
 
-    # producer = AIOKafkaProducer(
-    #     bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-    #     value_serializer=lambda v: json.dumps(v).encode('utf-8'),
-    #     # Настройки для Yandex Managed Kafka
-    #     security_protocol="SASL_SSL",
-    #     sasl_mechanism="SCRAM-SHA-512",
-    #     sasl_plain_username=KAFKA_USER,
-    #     sasl_plain_password=KAFKA_PASS,
-    #     ssl_context=context # Использовать системные сертификаты (куда мы добавили Yandex CA)
-    # )
-    # await producer.start()
+    producer = AIOKafkaProducer(
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+        value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+        # Настройки для Yandex Managed Kafka
+        security_protocol="SASL_SSL",
+        sasl_mechanism="SCRAM-SHA-512",
+        sasl_plain_username=KAFKA_USER,
+        sasl_plain_password=KAFKA_PASS,
+        ssl_context=context # Использовать системные сертификаты (куда мы добавили Yandex CA)
+    )
+    await producer.start()
     logger.info(f"Kafka Producer started on {KAFKA_BOOTSTRAP_SERVERS}")
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    #await producer.stop()
+    await producer.stop()
     logger.info("Kafka Producer stopped")
 
 @app.get("/")
@@ -146,9 +146,9 @@ async def make_prediction(features: List[FraudFeatures]) -> dict:
                     "version": VERSION
                 }
                 results.append(res_payload)
-                #kafka_tasks.append(producer.send(KAFKA_TOPIC_OUT, res_payload))
+                kafka_tasks.append(producer.send(KAFKA_TOPIC_OUT, res_payload))
                 
-            #await asyncio.gather(*kafka_tasks)
+            await asyncio.gather(*kafka_tasks)
                 
             return {
                 "results": results, 

@@ -104,7 +104,8 @@ module "kafka" {
   network_id = module.network.network_id
   subnet_id = module.network.subnet_id
   provider_config = var.yc_config
-  
+
+  raw_data_topic = var.kafka_raw_data_topic
   for_ml_fraud_topic = var.kafka_for_ml_fraud_topic
   prediction_topic = var.kafka_prediction_topic
 
@@ -145,6 +146,11 @@ module "k8s" {
 module "prometeus" {
   source = "./modules/prometeus"
   grafana_admin_password = var.grafana_admin_password
+  depends_on = [module.k8s] 
+}
+
+module "spark-operator" {
+  source = "./modules/spark-operator"
   depends_on = [module.k8s] 
 }
 

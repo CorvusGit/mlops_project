@@ -132,6 +132,10 @@ variable "kafka_pwd" {
   type    = string
 }
 
+variable "kafka_raw_data_topic" {
+  type    = string
+}
+
 variable "kafka_for_ml_fraud_topic" {
   type    = string
 }

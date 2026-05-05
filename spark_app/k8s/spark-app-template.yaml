@@ -1,0 +1,62 @@
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: spark-proc-job
+  namespace: spark
+spec:
+  type: Python
+  mode: cluster
+  image: {{IMAGE_PLACEHOLDER}}
+  mainApplicationFile: local:///app/clean_and_prepair.py
+  sparkVersion: "3.3.2"
+
+  driver:
+    cores: 1
+    memory: "1g"
+    serviceAccount: spark
+    env:
+      - name: KAFKA_BOOTSTRAP_SERVERS
+        value: "{{KAFKA_URL}}"
+      - name: KAFKA_USER
+        value: "{{KAFKA_USER}}"
+      - name: KAFKA_PASS
+        value: "{{KAFKA_PASS}}"
+      - name: KAFKA_TOPIC_IN
+        value: "raw_data"
+      - name: KAFKA_TOPIC_OUT
+        value: "for_ml_fraud"
+
+  executor:
+    cores: 1
+    memory: "1g"
+    # Дублируем переменные для исполнителей, если они нужны в коде трансформаций
+    env:
+      - name: KAFKA_BOOTSTRAP_SERVERS
+        value: "{{KAFKA_URL}}"
+
+  sparkConf:
+    "spark.dynamicAllocation.enabled": "true"
+    "spark.dynamicAllocation.minExecutors": "1"
+    "spark.dynamicAllocation.maxExecutors": "5"
+    "spark.dynamicAllocation.initialExecutors": "2"
+    "spark.dynamicAllocation.shuffleTracking.enabled": "true"
+    
+    # S3 / Object Storage
+    "spark.sql.streaming.checkpointLocation": "s3a://{{PERSIST_BUCKET_NAME}}/checkpoints"
+    "spark.hadoop.fs.s3a.endpoint": "storage.yandexcloud.net"
+    "spark.hadoop.fs.s3a.access.key": "{{PERSIST_BUCKET_KEY}}"
+    "spark.hadoop.fs.s3a.secret.key": "{{PERSIST_BUCKET_SECRET}}"
+    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    "spark.hadoop.fs.s3a.path.style.access": "true"
+    "spark.hadoop.fs.s3a.endpoint.region":  "ru-central1"
+    "com.amazonaws.services.s3.enableV4": "true"
+    "spark.hadoop.fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider"
+
+    # Kafka Security (SASL_SSL)
+    "spark.kafka.bootstrap.servers": "{{KAFKA_URL}}"
+    "spark.kafka.subscribe": "your_input_topic"
+    "spark.kafka.kafka.security.protocol": "SASL_SSL"
+    "spark.kafka.kafka.sasl.mechanism": "SCRAM-SHA-512"
+    "spark.kafka.kafka.sasl.jaas.config": "org.apache.kafka.common.security.scram.ScramLoginModule required username='{{KAFKA_USER}}' password='{{KAFKA_PASS}}';"
+    # Если не хотите возиться с сертификатом внутри Docker:
+    #"spark.kafka.kafka.ssl.endpoint.identification.algorithm": ""

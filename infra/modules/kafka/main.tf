@@ -46,6 +46,26 @@ resource "yandex_mdb_kafka_cluster" "kafka_cluster" {
   }
 }
 
+resource "yandex_mdb_kafka_topic" "raw_data" {
+  cluster_id         = yandex_mdb_kafka_cluster.kafka_cluster.id
+  name               = var.raw_data_topic
+  partitions         = 1
+  replication_factor = 1
+  topic_config {
+    cleanup_policy        = "CLEANUP_POLICY_DELETE"
+    compression_type      = "COMPRESSION_TYPE_PRODUCER"
+    delete_retention_ms   = 86400000
+    file_delete_delay_ms  = 60000
+    flush_messages        = 128
+    flush_ms              = 1000
+    min_compaction_lag_ms = 0
+    retention_bytes       = 10737418240
+    retention_ms          = 604800000
+    max_message_bytes     = 1048588
+    min_insync_replicas   = 1
+    segment_bytes         = 268435456
+  }
+}
 
 resource "yandex_mdb_kafka_topic" "for_ml_fraud_data" {
   cluster_id         = yandex_mdb_kafka_cluster.kafka_cluster.id
@@ -95,7 +115,15 @@ resource "yandex_mdb_kafka_user" "user_kafka" {
   name       = var.user_name
   password   = var.password
   
-  # Разрешения для первого топика (ML Fraud)
+  permission {
+    topic_name = var.raw_data_topic
+    role       = "ACCESS_ROLE_CONSUMER"
+  }
+  permission {
+    topic_name = var.raw_data_topic
+    role       = "ACCESS_ROLE_PRODUCER"
+  }
+
   permission {
     topic_name = var.for_ml_fraud_topic
     role       = "ACCESS_ROLE_CONSUMER"
@@ -105,7 +133,6 @@ resource "yandex_mdb_kafka_user" "user_kafka" {
     role       = "ACCESS_ROLE_PRODUCER"
   }
 
-  # Разрешения для второго топика (Prediction)
   permission {
     topic_name = var.prediction_topic
     role       = "ACCESS_ROLE_CONSUMER"

@@ -23,6 +23,12 @@ variable "provider_config" {
   })
 }
 
+
+variable "raw_data_topic" {
+  description = "raw_data_topic"
+  type        = string
+}
+
 variable "for_ml_fraud_topic" {
   description = "for_ml_fraud_topic"
   type        = string
