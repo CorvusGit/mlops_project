@@ -1,4 +1,4 @@
-FROM cr.yandex/yc/spark-py:3.3.2
+FROM apache/spark-py:v3.3.2
 
 WORKDIR /app
 

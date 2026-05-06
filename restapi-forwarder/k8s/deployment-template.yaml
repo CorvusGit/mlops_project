@@ -14,6 +14,10 @@ spec:
       labels:
         app: kafka-to-api-forwarder
     spec:
+      hostAliases:
+      - ip: "${KAFKA_IP}"
+        hostnames:
+        - "${KAFKA_HOST}"
       containers:
       - name: forwarder-container
         image: {{IMAGE_PLACEHOLDER}}
