@@ -1,5 +1,8 @@
 FROM apache/spark-py:v3.3.2
 
+RUN apt-get update && apt-get install -y curl 
+
+
 WORKDIR /app
 
 # =========================
