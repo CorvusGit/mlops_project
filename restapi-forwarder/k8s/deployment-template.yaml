@@ -5,7 +5,7 @@ metadata:
   labels:
     app: kafka-to-api-forwarder
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: kafka-to-api-forwarder
@@ -34,5 +34,5 @@ spec:
             cpu: "100m"
             memory: "256Mi"
           limits:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: "1"
+            memory: "1Gi"

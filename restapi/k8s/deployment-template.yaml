@@ -5,7 +5,7 @@ metadata:
   labels:
     app: fraud-api
 spec:
-  replicas: 4  # Для начала 4
+  replicas: 2  # Для начала 2
   selector:
     matchLabels:
       app: fraud-api
@@ -37,7 +37,7 @@ spec:
             memory: "512Mi"
           limits:
             cpu: "1"
-            memory: "1Gi"
+            memory: "2Gi"
         # Проверки работоспособности
         livenessProbe:
           httpGet:
