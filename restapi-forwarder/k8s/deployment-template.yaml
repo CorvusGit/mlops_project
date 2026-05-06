@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-to-api-forwarder
+  labels:
+    app: kafka-to-api-forwarder
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kafka-to-api-forwarder
+  template:
+    metadata:
+      labels:
+        app: kafka-to-api-forwarder
+    spec:
+      containers:
+      - name: forwarder-container
+        image: {{IMAGE_PLACEHOLDER}}
+        env:
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "{{KAFKA_URL}}"
+        - name: KAFKA_USER
+          value: "{{KAFKA_USER}}"
+        - name: KAFKA_PASS
+          value: "{{KAFKA_PASS}}"
+        - name: KAFKA_TOPIC_IN
+          value: "for_ml_fraud" # Топик, куда пишет Spark
+        #  API через имя сервиса
+        - name: FRAUD_API_URL
+          value: "http://fraud-app:80/predict" 
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"

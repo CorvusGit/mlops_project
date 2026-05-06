@@ -72,14 +72,22 @@ resource "yandex_container_registry" "registry" {
 
 
 # Создаем ServiceAccount внутри K8s
-resource "kubernetes_service_account" "spark_sa" {
+
+resource "kubernetes_namespace_v1" "spark_ns" {
   metadata {
-    name      = "spark"
-    namespace = "spark" # Убедитесь, что namespace создан
+    name = "spark"
   }
 }
 
-resource "kubernetes_role_binding" "spark_role_binding" {
+resource "kubernetes_service_account_v1" "spark_sa" {
+  metadata {
+    name      = "spark"
+    namespace = "spark"
+  }
+  depends_on = [kubernetes_namespace_v1.spark_ns]
+}
+
+resource "kubernetes_role_binding_v1" "spark_role_binding" {
   metadata {
     name      = "spark-role-binding"
     namespace = "spark"
@@ -87,11 +95,11 @@ resource "kubernetes_role_binding" "spark_role_binding" {
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "ClusterRole"
-    name      = "edit" # Роли 'edit' достаточно для запуска подов
+    name      = "edit"
   }
   subject {
     kind      = "ServiceAccount"
-    name      = kubernetes_service_account.spark_sa.metadata[0].name
+    name      = kubernetes_service_account_v1.spark_sa.metadata[0].name
     namespace = "spark"
   }
 }

@@ -33,3 +33,13 @@ provider "helm" {
     }
   }
 }
+
+provider "kubernetes" {
+  host                   = module.k8s.k8s_cluster_external_endpoint
+  cluster_ca_certificate = module.k8s.k8_cluster_ca_certificate
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "yc"
+    args        = ["k8s", "create-token"]
+  }
+}

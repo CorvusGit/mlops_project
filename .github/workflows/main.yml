@@ -19,6 +19,7 @@ jobs:
       dags: ${{ steps.filter.outputs.dags }}
       src: ${{ steps.filter.outputs.src }}
       spark: ${{ steps.filter.outputs.spark }}
+      forwarder: ${{ steps.filter.outputs.forwarder }}
       model: ${{ steps.filter.outputs.model }}
     steps:
       - uses: actions/checkout@v3
@@ -29,6 +30,7 @@ jobs:
             dags: ['dags/**']
             src: ['src/**']
             spark: ['spark-operator/**']
+            forwarder: ['restapi-forwarder/**']
             model: ['restapi/**']
 
   # Ваши существующие задачи для Airflow
@@ -137,7 +139,77 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ env.YC_S3_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.YC_S3_SECRET_ACCESS_KEY }}
+  
+  # FORWARDER
+  forward_to_predictions:
+    needs: changes
+    if: ${{ needs.changes.outputs.forwarder == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+     
+      # Deploy
+      - name: Install Yandex Cloud CLI
+        run: |
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -y
+          echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
+
+      - name: Authenticate with Yandex Cloud
+        run: |
+          # Явно определяем переменную пути для этого шага
+          YC_BIN=$HOME/yandex-cloud/bin/yc
           
+          echo '${{ secrets.YC_SA_JSON_KEY }}' > sa-key.json
+          
+          # Используем полный путь к бинарнику
+          $YC_BIN config set service-account-key sa-key.json
+          $YC_BIN config set cloud-id ${{ secrets.YC_CLOUD_ID }}
+          $YC_BIN config set folder-id ${{ secrets.YC_FOLDER_ID }}
+          
+          # Настройка docker тоже через полный путь
+          $YC_BIN container registry configure-docker
+
+      - name: Build and Push Image
+        run: |
+          IMAGE_PATH=cr.yandex/${{ env.YC_REGISTRY_ID }}/fraud-api-forwarder:${{ github.sha }}
+          yc container registry configure-docker
+          docker build -t $IMAGE_PATH -f restapi-forwarder/Dockerfile restapi-forwarder/
+          docker push $IMAGE_PATH
+
+      - name: Prepare and Upload K8s Manifests to S3
+        run: |
+          IMAGE_PATH=cr.yandex/${{ env.YC_REGISTRY_ID }}/fraud-api-forwarder:${{ github.sha }}
+          KAFKA_URL="${{ secrets.KAFKA_FQDN }}:${{ secrets.KAFKA_PORT }}"
+
+          # Заменяем образ, адрес MLFlow и адрес Kafka в шаблоне
+          sed -e "s|{{IMAGE_PLACEHOLDER}}|$IMAGE_PATH|g" \
+              -e "s|{{KAFKA_URL}}|$KAFKA_URL|g" \
+              -e "s|{{KAFKA_USER}}|${{ secrets.KAFKA_USER }}|g" \
+              -e "s|{{KAFKA_PASS}}|${{ secrets.KAFKA_PASS }}|g" \
+              restapi-forwarder/k8s/deployment-template.yaml > deployment-forwarder.yaml
+          
+          
+          # Загружаем готовые файлы в S3
+          aws s3 cp deployment-forwarder.yaml s3://${{ env.YC_S3_BUCKET }}/k8s/deployment-forwarder.yaml --endpoint-url ${{ env.YC_S3_ENDPOINT }}
+
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.YC_S3_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.YC_S3_SECRET_ACCESS_KEY }}
+          
+      - name: Get Kubeconfig and Deploy
+        run: |
+          # 1. Генерируем конфиг (он ложится в ~/.kube/config)
+          yc managed-kubernetes cluster get-credentials ${{ secrets.KUBER_ID }} --external
+          
+          # 2. kubectl сам подхватит его из ~/.kube/config
+          kubectl cluster-info  # Проверка связи
+          
+          # 3. Деплоим
+          kubectl apply -f deployment-forwarder.yaml
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.YC_S3_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.YC_S3_SECRET_ACCESS_KEY }}
+
   # REST API
   build-and-deploy-model:
     needs: changes

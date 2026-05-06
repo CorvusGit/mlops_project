@@ -1,4 +1,4 @@
-resource "kubernetes_namespace" "spark_operator" {
+resource "kubernetes_namespace_v1" "spark_operator" {
   metadata {
     name = "spark-operator"
   }
@@ -9,10 +9,10 @@ resource "helm_release" "spark_operator" {
   repository = "https://kubeflow.github.io/spark-operator"
   chart      = "spark-operator"
 
-  namespace = kubernetes_namespace.spark_operator.metadata[0].name
+  namespace = kubernetes_namespace_v1.spark_operator.metadata[0].name
 
   depends_on = [
-    kubernetes_namespace.spark_operator
+    kubernetes_namespace_v1.spark_operator
   ]
 
   set {
