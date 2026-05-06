@@ -181,9 +181,11 @@ jobs:
           IMAGE_PATH=cr.yandex/${{ env.YC_REGISTRY_ID }}/fraud-api-forwarder:${{ github.sha }}
           KAFKA_URL="${{ secrets.KAFKA_FQDN }}:${{ secrets.KAFKA_PORT }}"
 
-          KAFKA_HOST_INFO=$(yc mdb kafka host list --cluster-id ${{ secrets.KAFKA_CLUSTER_ID }} --format json | jq -r '.[0]')
-          KAFKA_IP=$(echo $KAFKA_HOST_INFO | jq -r '.network_interface.ip_address')
-          KAFKA_FQDN=$(echo $KAFKA_HOST_INFO | jq -r '.name')
+          KAFKA_HOSTS_JSON=$(yc mdb kafka host list --cluster-id ${{ secrets.KAFKA_CLUSTER_ID }} --format json)
+
+          # Важно: используем .[0] для обращения к первому элементу массива
+          KAFKA_IP=$(echo $KAFKA_HOSTS_JSON | jq -r '.[0].network_interface.ip_address')
+          KAFKA_FQDN=$(echo $KAFKA_HOSTS_JSON | jq -r '.[0].name')
 
           echo "Detected Kafka IP: $KAFKA_IP for Host: $KAFKA_FQDN"
 
