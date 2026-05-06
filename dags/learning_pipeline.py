@@ -112,8 +112,8 @@ def run_setup_connections(**kwargs): # pylint: disable=unused-argument
 # Настройки DAG
 with DAG(
     dag_id="learning_model",
-    start_date=datetime(year=2026, month=3, day=16),
-    schedule_interval=timedelta(minutes=60*24),
+    start_date=datetime(year=2026, month=6, day=1),
+    schedule_interval=timedelta(days=7),
     catchup=False,
     max_active_runs=1
 ) as dag:

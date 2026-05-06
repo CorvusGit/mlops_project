@@ -22,9 +22,8 @@ async def send_to_api(session, url, data):
 
 async def consume():
     # Настройка SSL для Yandex Cloud
-    ssl_context = ssl.create_default_context(
-        cafile='/usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt'
-    )
+    
+    context = ssl.create_default_context()
 
     KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
     KAFKA_USER = os.getenv("KAFKA_USER")
@@ -39,8 +38,10 @@ async def consume():
         sasl_mechanism="SCRAM-SHA-512",
         sasl_plain_username=KAFKA_USER,
         sasl_plain_password=KAFKA_PASS,
-        ssl_context=ssl_context,
-        group_id="forwarder-group"
+        ssl_context=context,
+        group_id="forwarder-group",
+        retry_backoff_ms=500,
+        request_timeout_ms=30000
     )
 
     await consumer.start()
