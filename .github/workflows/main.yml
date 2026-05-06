@@ -29,7 +29,7 @@ jobs:
           filters: |
             dags: ['dags/**']
             src: ['src/**']
-            spark: ['spark-operator/**']
+            spark: ['spark-app/**']
             forwarder: ['restapi-forwarder/**']
             model: ['restapi/**']
 
@@ -101,7 +101,7 @@ jobs:
         run: |
           IMAGE_PATH=cr.yandex/${{ env.YC_REGISTRY_ID }}/clean-data:${{ github.sha }}
           yc container registry configure-docker
-          docker build -t $IMAGE_PATH -f spark_app/Dockerfile spark_app/
+          docker build -t $IMAGE_PATH -f spark-app/Dockerfile spark-app/
           docker push $IMAGE_PATH
 
       - name: Prepare and Upload K8s Manifests to S3
@@ -117,10 +117,10 @@ jobs:
               -e "s|{{PERSIST_BUCKET_NAME}}|${{ secrets.PERSIST_BUCKET_NAME }}|g" \
               -e "s|{{PERSIST_BUCKET_KEY}}|${{ secrets.PERSIST_BUCKET_KEY }}|g" \
               -e "s|{{PERSIST_BUCKET_SECRET}}|${{ secrets.PERSIST_BUCKET_SECRET }}|g" \
-              spark_app/k8s/spark-app-template.yaml > spark_app.yaml
+              spark-app/k8s/spark-app-template.yaml > spark-app-template.yaml
           
           # Загружаем готовый файлы в S3
-          aws s3 cp deployment.yaml s3://${{ env.YC_S3_BUCKET }}/k8s/deployment.yaml --endpoint-url ${{ env.YC_S3_ENDPOINT }}
+          aws s3 cp spark-app-template.yaml s3://${{ env.YC_S3_BUCKET }}/k8s/spark-app-template.yaml --endpoint-url ${{ env.YC_S3_ENDPOINT }}
 
         env:
           AWS_ACCESS_KEY_ID: ${{ env.YC_S3_ACCESS_KEY_ID }}
