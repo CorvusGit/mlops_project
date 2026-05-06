@@ -181,7 +181,7 @@ jobs:
           IMAGE_PATH=cr.yandex/${{ env.YC_REGISTRY_ID }}/fraud-api-forwarder:${{ github.sha }}
           KAFKA_URL="${{ secrets.KAFKA_FQDN }}:${{ secrets.KAFKA_PORT }}"
 
-          KAFKA_HOSTS_JSON=$(yc mdb kafka host list --cluster-id ${{ secrets.KAFKA_CLUSTER_ID }} --format json)
+          KAFKA_HOSTS_JSON=$(yc managed-kafka host list --cluster-id ${{ secrets.KAFKA_CLUSTER_ID }} --format json)
 
           # Важно: используем .[0] для обращения к первому элементу массива
           KAFKA_IP=$(echo $KAFKA_HOSTS_JSON | jq -r '.[0].network_interface.ip_address')

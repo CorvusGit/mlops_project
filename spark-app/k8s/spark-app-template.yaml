@@ -7,7 +7,7 @@ spec:
   type: Python
   mode: cluster
   image: {{IMAGE_PLACEHOLDER}}
-  mainApplicationFile: local:///app/clean_and_prepair.py
+  mainApplicationFile: local:///app/clean_and_prepare.py
   sparkVersion: "3.3.2"
 
   driver:

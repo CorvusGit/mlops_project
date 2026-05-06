@@ -4,8 +4,6 @@ USER root
 
 RUN apt-get update && apt-get install -y curl 
 
-
-
 WORKDIR /app
 
 # =========================
@@ -56,6 +54,8 @@ COPY ./scripts/clean_and_prepare.py /app/clean_and_prepare.py
 # =========================
 # 8. Runtime configuration
 # =========================
+USER 185
+
 ENV KAFKA_BOOTSTRAP_SERVERS="localhost:9092"
 ENV KAFKA_TOPIC_IN="raw_data"
 ENV KAFKA_TOPIC_OUT="for_ml_data"
