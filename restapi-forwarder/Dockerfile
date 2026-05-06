@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
     && mkdir -p /usr/local/share/ca-certificates/Yandex \
-    && curl https://yandexcloud.net \
+    && curl https://storage.yandexcloud.net/cloud-certs/CA.pem \
     -o /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt \
     && chmod 644 /usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt \
     && update-ca-certificates \
