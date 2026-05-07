@@ -60,8 +60,24 @@ async def consume():
             async for msg in consumer:
                 try:
                     payload = json.loads(msg.value.decode('utf-8'))
-                    # Отправляем в API
-                    success = await send_to_api(session, FRAUD_API_URL , payload)
+                    
+                    # Нормализуем payload
+                    if isinstance(payload, dict):
+                        payload = [payload]
+
+                    elif not isinstance(payload, list):
+                        logging.error(
+                            f"Unsupported payload type: {type(payload)}"
+                        )
+                        continue
+
+                    # Отправка в API
+                    success = await send_to_api(
+                        session,
+                        FRAUD_API_URL,
+                        payload
+                    )
+                    
                     if not success:
                         # Тут можно добавить логику ретраев или отправку в DLQ
                         pass

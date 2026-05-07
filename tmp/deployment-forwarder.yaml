@@ -20,7 +20,7 @@ spec:
       #     - 169.254.169.254
       containers:
       - name: forwarder-container
-        image: cr.yandex/crpd33maugkidd7j102q/fraud-api-forwarder:724695544aa44053b5f2584263301c94e5671f94
+        image: cr.yandex/crpd33maugkidd7j102q/fraud-api-forwarder:afddb3f823ba593b9816a622fa9417a313996d96
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: "rc1a-0s2cfdsfkkv50slk.mdb.yandexcloud.net:9091"
