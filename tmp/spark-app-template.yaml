@@ -6,7 +6,7 @@ metadata:
 spec:
   type: Python
   mode: cluster
-  image: cr.yandex/crpd33maugkidd7j102q/clean-data:1d0b60f45ae9dd2ace8c4fa037b2a866913867af
+  image: cr.yandex/crpd33maugkidd7j102q/clean-data:96685f75d7104fd8cdda256022a859913842037d
   mainApplicationFile: local:///app/clean_and_prepare.py
   sparkVersion: "3.3.2"
 
@@ -28,7 +28,7 @@ spec:
 
   executor:
     cores: 2
-    memory: "4g"
+    memory: "3g"
     # Дублируем переменные для исполнителей, если они нужны в коде трансформаций
     env:
       - name: KAFKA_BOOTSTRAP_SERVERS

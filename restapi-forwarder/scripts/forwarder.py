@@ -14,7 +14,8 @@ async def send_to_api(session, url, data):
         async with session.post(url, json=data, timeout=10) as response:
             if response.status == 200:
                 return True
-            logging.error(f"API error: {response.status}")
+            text = await response.text()
+            logging.error(f"API error {response.status}: {text}")
             return False
     except Exception as e:
         logging.error(f"Connection failed: {e}")

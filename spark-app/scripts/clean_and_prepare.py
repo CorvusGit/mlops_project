@@ -187,7 +187,7 @@ clean_stream = (
     #.withColumn("tx_time_days", F.when(F.col("tx_time_days") >= 0, F.col("tx_time_days")).otherwise(SPECIAL_TIME_DAYS))
 )
 
-clean_stream = clean_stream.drop("tx_datetime","date")
+clean_stream = clean_stream.drop("tx_datetime","date",'unix_time','tx_fraud')
 
 clean_stream = clean_stream.fillna(0)
 # =====================================================
