@@ -61,14 +61,14 @@ spec:
 
     "spark.kubernetes.executorEnv.KAFKA_BOOTSTRAP_SERVERS": "{{KAFKA_URL}}"
     "spark.kubernetes.executorEnv.KAFKA_USER": "{{KAFKA_USER}}"
-    "spark.kubernetes.executorEnv.KAFKA_PASS": "{KAFKA_PASS}}"
+    "spark.kubernetes.executorEnv.KAFKA_PASS": "{{KAFKA_PASS}}"
     "spark.kubernetes.executorEnv.KAFKA_TOPIC_IN": "raw_data"
     "spark.kubernetes.executorEnv.KAFKA_TOPIC_OUT": "for_ml_fraud"
     "spark.kubernetes.executorEnv.PERSIST_BUCKET_NAME": "{{PERSIST_BUCKET_NAME}}"
 
     "spark.kubernetes.driverEnv.KAFKA_BOOTSTRAP_SERVERS": "{{KAFKA_URL}}"
     "spark.kubernetes.driverEnv.KAFKA_USER": "{{KAFKA_USER}}"
-    "spark.kubernetes.driverEnv.KAFKA_PASS": "{KAFKA_PASS}}"
+    "spark.kubernetes.driverEnv.KAFKA_PASS": "{{KAFKA_PASS}}"
     "spark.kubernetes.driverEnv.KAFKA_TOPIC_IN": "raw_data"
     "spark.kubernetes.driverEnv.KAFKA_TOPIC_OUT": "for_ml_fraud"
     "spark.kubernetes.driverEnv.PERSIST_BUCKET_NAME": "{{PERSIST_BUCKET_NAME}}"
