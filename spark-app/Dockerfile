@@ -28,8 +28,8 @@ RUN curl -L -o $SPARK_HOME/jars/kafka-clients-3.3.2.jar \
 # =========================
 RUN curl -L -o $SPARK_HOME/jars/hadoop-aws-3.3.2.jar \
     https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.2/hadoop-aws-3.3.2.jar && \
-    curl -L -o $SPARK_HOME/jars/aws-java-sdk-bundle-1.11.1026.jar \
-    https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.1026/aws-java-sdk-bundle-1.11.1026.jar
+    curl -L -o $SPARK_HOME/jars/aws-java-sdk-bundle-1.12.262.jar \
+    https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar
 
 # Spark 3.3.2 + Scala 2.12
 
