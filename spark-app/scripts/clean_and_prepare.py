@@ -179,8 +179,8 @@ clean_stream = (
     # рекомендуется включать колонку времени.
     .dropDuplicates(["transaction_id", "tx_datetime"])
     # 4. Остальная валидация полей
-    .withColumn("customer_id", F.when(F.col("customer_id") >= 0, F.col("customer_id")).otherwise(SPECIAL_CUSTOMER_ID))
-    .withColumn("terminal_id", F.when(F.col("terminal_id") >= 0, F.col("terminal_id")).otherwise(SPECIAL_TERMINAL_ID))
+    #.withColumn("customer_id", F.when(F.col("customer_id") >= 0, F.col("customer_id")).otherwise(SPECIAL_CUSTOMER_ID))
+    #.withColumn("terminal_id", F.when(F.col("terminal_id") >= 0, F.col("terminal_id")).otherwise(SPECIAL_TERMINAL_ID))
     #.withColumn("tx_fraud_scenario", F.when(F.col("tx_fraud_scenario") >= 0, F.col("tx_fraud_scenario")).otherwise(SPECIAL_SCENARIO_ID))
     #.withColumn("tx_time_seconds", F.when(F.col("tx_time_seconds") >= 0, F.col("tx_time_seconds")).otherwise(SPECIAL_TIME_SECONDS))
     #.withColumn("tx_time_days", F.when(F.col("tx_time_days") >= 0, F.col("tx_time_days")).otherwise(SPECIAL_TIME_DAYS))
