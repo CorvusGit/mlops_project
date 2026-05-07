@@ -69,6 +69,13 @@ write_files:
       ${test}
     defer: true
 
+  # ---------- get and out raw data script ----------
+  - path: /opt/app/get_data.py
+    permissions: '0755'
+    content: |
+      ${get_data}
+    defer: true
+
 runcmd:
   - apt-get update
   - apt-get install -y docker.io docker-compose

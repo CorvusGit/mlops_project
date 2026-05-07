@@ -420,7 +420,7 @@ def s3_to_kafka(
         's3_session': dates_json_session,
         's3_prefix': INPUT_PATH,
         'conf': conf,
-        'topic': IN_TOPIC,
+        'topic': OUTPUT_TOPIC,
         'start_date_time': ST,
         'end_date_time': ET
     }
