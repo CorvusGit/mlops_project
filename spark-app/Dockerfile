@@ -5,7 +5,7 @@ USER root
 RUN apt-get update && apt-get install -y curl 
 
 WORKDIR /app
-
+"org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.2,org.apache.hadoop:hadoop-aws:3.3.2,com.amazonaws:aws-java-sdk-bundle:1.11.1026"
 # =========================
 # 1. Detect Spark home (важно для переносимости)
 # =========================
@@ -28,9 +28,31 @@ RUN curl -L -o $SPARK_HOME/jars/kafka-clients-3.3.2.jar \
 # =========================
 RUN curl -L -o $SPARK_HOME/jars/hadoop-aws-3.3.2.jar \
     https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.2/hadoop-aws-3.3.2.jar && \
-    curl -L -o $SPARK_HOME/jars/aws-java-sdk-bundle-1.12.262.jar \
-    https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar
+    curl -L -o $SPARK_HOME/jars/aws-java-sdk-bundle-1.11.1026.jar \
+    https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.1026/aws-java-sdk-bundle-1.11.1026.jar
 
+# Spark 3.3.2 + Scala 2.12
+
+
+# Token provider (обязательно для Spark 3.3.x)
+RUN curl -L -o $SPARK_HOME/jars/spark-token-provider-kafka-0-10_2.12-3.3.2.jar \
+    https://repo1.maven.org/maven2/org/apache/spark/spark-token-provider-kafka-0-10_2.12/3.3.2/spark-token-provider-kafka-0-10_2.12-3.3.2.jar
+
+
+# Kafka token auth dependency
+RUN curl -L -o $SPARK_HOME/jars/commons-pool2-2.11.1.jar \
+    https://repo1.maven.org/maven2/org/apache/commons/commons-pool2/2.11.1/commons-pool2-2.11.1.jar
+
+# Additional Kafka dependencies often required manually
+RUN curl -L -o $SPARK_HOME/jars/spark-tags_2.12-3.3.2.jar \
+    https://repo1.maven.org/maven2/org/apache/spark/spark-tags_2.12/3.3.2/spark-tags_2.12-3.3.2.jar
+
+RUN curl -L -o $SPARK_HOME/jars/kafka_2.12-3.2.3.jar \
+    https://repo1.maven.org/maven2/org/apache/kafka/kafka_2.12/3.2.3/kafka_2.12-3.2.3.jar
+
+#RUN curl -L -o $SPARK_HOME/jars/zookeeper-3.6.3.jar \
+#    https://repo1.maven.org/maven2/org/apache/zookeeper/zookeeper/3.6.3/zookeeper-3.6.3.jar
+    
 # =========================
 # 5. Yandex Cloud CA certificate (Kafka SSL / HTTPS)
 # =========================
@@ -56,6 +78,6 @@ COPY ./scripts/clean_and_prepare.py /app/clean_and_prepare.py
 # =========================
 USER 185
 
-ENV KAFKA_BOOTSTRAP_SERVERS="localhost:9092"
+ENV KAFKA_BOOTSTRAP_SERVERS="localhost:9091"
 ENV KAFKA_TOPIC_IN="raw_data"
 ENV KAFKA_TOPIC_OUT="for_ml_data"
