@@ -180,23 +180,14 @@ jobs:
         run: |
           IMAGE_PATH=cr.yandex/${{ env.YC_REGISTRY_ID }}/fraud-api-forwarder:${{ github.sha }}
           KAFKA_URL="${{ secrets.KAFKA_FQDN }}:${{ secrets.KAFKA_PORT }}"
-
-          KAFKA_HOSTS_JSON=$(yc managed-kafka cluster list-hosts --id ${{ secrets.KAFKA_CLUSTER_ID }} --format json)
-
-          # Важно: используем .[0] для обращения к первому элементу массива
-          KAFKA_IP=$(echo $KAFKA_HOSTS_JSON | jq -r '.[0].network_interface.ip_address')
-          KAFKA_FQDN=$(echo $KAFKA_HOSTS_JSON | jq -r '.[0].name')
-
-          echo "Detected Kafka IP: $KAFKA_IP for Host: $KAFKA_FQDN"
-
-          # 2. Заменяем заглушки, включая новые для HostAliases
+        
+          # Заменяем образ, адрес MLFlow и адрес Kafka в шаблоне
           sed -e "s|{{IMAGE_PLACEHOLDER}}|$IMAGE_PATH|g" \
               -e "s|{{KAFKA_URL}}|$KAFKA_URL|g" \
               -e "s|{{KAFKA_USER}}|${{ secrets.KAFKA_USER }}|g" \
               -e "s|{{KAFKA_PASS}}|${{ secrets.KAFKA_PASS }}|g" \
-              -e "s|{{KAFKA_IP}}|$KAFKA_IP|g" \
-              -e "s|{{KAFKA_HOST}}|$KAFKA_FQDN|g" \
               restapi-forwarder/k8s/deployment-template.yaml > deployment-forwarder.yaml
+          
           
           # Загружаем готовые файлы в S3
           aws s3 cp deployment-forwarder.yaml s3://${{ env.YC_S3_BUCKET }}/k8s/deployment-forwarder.yaml --endpoint-url ${{ env.YC_S3_ENDPOINT }}

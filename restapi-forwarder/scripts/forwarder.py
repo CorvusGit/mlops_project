@@ -23,7 +23,9 @@ async def send_to_api(session, url, data):
 async def consume():
     # Настройка SSL для Yandex Cloud
     
-    context = ssl.create_default_context()
+    cert_path = '/usr/local/share/ca-certificates/Yandex/YandexInternalRootCA.crt'
+    
+    context = ssl.create_default_context(cafile=cert_path)
 
     KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
     KAFKA_USER = os.getenv("KAFKA_USER")
@@ -44,7 +46,12 @@ async def consume():
         request_timeout_ms=30000
     )
 
-    await consumer.start()
+    try:
+        await consumer.start()
+        logging.info("Kafka Consumer started successfully")
+    except Exception as e:
+        logging.error(f"Failed to start Kafka Consumer: {e}", exc_info=True)
+        return  # Или sys.exit(1)
     
     # Используем одну сессию для всех запросов (рекомендуется aiohttp)
     async with aiohttp.ClientSession() as session:

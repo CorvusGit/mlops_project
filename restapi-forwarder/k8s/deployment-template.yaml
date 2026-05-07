@@ -14,10 +14,10 @@ spec:
       labels:
         app: kafka-to-api-forwarder
     spec:
-      hostAliases:
-      - ip: "${KAFKA_IP}"
-        hostnames:
-        - "${KAFKA_HOST}"
+      # dnsPolicy: ClusterFirst
+      # dnsConfig:
+      #   nameservers:
+      #     - 169.254.169.254
       containers:
       - name: forwarder-container
         image: {{IMAGE_PLACEHOLDER}}
