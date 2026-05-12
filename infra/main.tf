@@ -111,6 +111,11 @@ module "kafka" {
 
   user_name = var.kafka_user
   password = var.kafka_pwd
+  
+  access_key_id = var.mlflow_access_key
+  secret_access_key = var.mlflow_secret_key
+  bucket_name = var.mlflow_buket_name
+  topic = var.kafka_for_ml_fraud_topic
 
   providers = {
     yandex = yandex

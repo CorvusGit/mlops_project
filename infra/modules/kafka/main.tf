@@ -142,3 +142,40 @@ resource "yandex_mdb_kafka_user" "user_kafka" {
     role       = "ACCESS_ROLE_PRODUCER"
   }
 }
+
+resource "yandex_mdb_kafka_connector" "connector" {
+  cluster_id = yandex_mdb_kafka_cluster.kafka_cluster.id
+  name       = "s3-sink"
+  tasks_max  = 2
+  
+  properties = {
+      format_output_fields = "value"
+      storage_class        = "io.confluent.connect.s3.storage.S3Storage"
+      format_class         = "io.confluent.connect.s3.format.parquet.ParquetFormat"
+
+      # Ротация файлов (накопление батча перед записью в S3)
+      flush_size         = 10000       # Запись при накоплении 10 000 строк
+      rotate_interval_ms = 3600000     # Или принудительно каждый час (в мс)
+
+      # Партиционирование по датам
+      partitioner_class = "io.confluent.connect.storage.partitioner.TimeBasedPartitioner"
+      partition_duration_ms = 86400000 # Гранулярность партиций — 1 день (в мс)
+      path_format          = "'year'=YYYY/'month'=MM/'day'=dd"
+      locale               = "ru"
+      timezone             = "Europe/Moscow"
+      timestamp_extractor  = "Record"  # Партиционируем по времени создания сообщения в Kafka
+  }
+  connector_config_s3_sink {
+    topics                = var.topic
+    file_compression_type = "gzip"
+    file_max_records      = 100
+    s3_connection {
+      bucket_name = var.bucket_name
+      external_s3 {
+        endpoint          = "storage.yandexcloud.net"
+        access_key_id     = var.access_key_id
+        secret_access_key =  var.secret_access_key
+      }
+    }
+  }
+}
