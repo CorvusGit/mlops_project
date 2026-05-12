@@ -32,7 +32,7 @@ spec:
           value: "for_ml_fraud" # Топик, куда пишет Spark
         #  API через имя сервиса
         - name: FRAUD_API_URL
-          value: "http://fraud-app:80/predict" 
+          value: "http://fraud-api-service/predict" 
         resources:
           requests:
             cpu: "100m"

@@ -33,3 +33,16 @@ pg_db_name = ""
 pg_user = ""
 pg_password = ""
 mlflow_backup_interval = 300
+
+kafka_instance_name = ""
+kafka_user = "
+kafka_pwd = ""
+kafka_raw_data_topic = ""
+kafka_for_ml_fraud_topic = ""
+kafka_prediction_topic = ""
+kafka_port = ""
+
+k8s_instance_name = ""
+registry_name = ""
+
+grafana_admin_password = ""
